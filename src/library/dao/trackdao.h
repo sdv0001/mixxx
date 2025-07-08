@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "library/dao/dao.h"
+#include "library/dao/genredao.h"
 #include "library/relocatedtrack.h"
 #include "preferences/usersettings.h"
 #include "track/globaltrackcache.h"
@@ -17,6 +18,7 @@ class PlaylistDAO;
 class AnalysisDao;
 class CueDAO;
 class LibraryHashDAO;
+class GenreDao;
 
 namespace mixxx {
 class FileInfo;
@@ -42,6 +44,7 @@ class TrackDAO : public QObject, public virtual DAO, public virtual GlobalTrackC
             PlaylistDAO& playlistDao,
             AnalysisDao& analysisDao,
             LibraryHashDAO& libraryHashDao,
+            GenreDao& genreDao,
             UserSettingsPointer pConfig);
     ~TrackDAO() override;
 
@@ -87,7 +90,7 @@ class TrackDAO : public QObject, public virtual DAO, public virtual GlobalTrackC
     /// This method is invoked by a free function that needs to access
     /// a private Track member that only TrackDAO is allowed to access
     /// as a friend.
-    static void setTrackGenreInternal(Track* pTrack, const QString& genre);
+    // static void setTrackGenreInternal(Track* pTrack, const QString& genre);
     /// Don't use even if public!!! Ugly workaround for C++ visibility restrictions.
     /// This method is invoked by a free function that needs to access
     /// a private TrackRecord member that only TrackDAO is allowed to
@@ -203,6 +206,7 @@ class TrackDAO : public QObject, public virtual DAO, public virtual GlobalTrackC
     PlaylistDAO& m_playlistDao;
     AnalysisDao& m_analysisDao;
     LibraryHashDAO& m_libraryHashDao;
+    GenreDao& m_genreDao;
 
     const UserSettingsPointer m_pConfig;
 
