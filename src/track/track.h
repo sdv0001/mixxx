@@ -226,6 +226,24 @@ class Track : public QObject {
             /*TODO: const mixxx::TaggingConfig& config,*/
             const QString& genre);
 
+    /// Set the genre text (single genre for backward compatibility)
+    void setGenre(const QString& genre);
+
+    /// Get all genres as a list
+    QStringList getGenres() const;
+
+    /// Set multiple genres
+    void setGenres(const QStringList& genres);
+
+    /// Add a genre to the track
+    void addGenre(const QString& genre);
+
+    /// Remove a genre from the track
+    void removeGenre(const QString& genre);
+
+    /// Clear all genres
+    void clearGenres();
+
 #if defined(__EXTRA_METADATA__)
     /// Return the mood as text
     QString getMood() const;
@@ -636,6 +654,11 @@ class Track : public QObject {
     /// TODO: Remove and populate TrackRecord from the database instead.
     void setGenreFromTrackDAO(
             const QString& genre);
+
+    /// Access to the track's metadata for multi-genre support
+    mixxx::TrackMetadata& refMetadata() {
+        return m_record.refMetadata();
+    }
 
     friend class GlobalTrackCache;
     friend class GlobalTrackCacheResolver;
