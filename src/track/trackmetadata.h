@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDateTime>
+#include <QStringList>
 
 #include "audio/streaminfo.h"
 #include "track/albuminfo.h"
@@ -20,11 +21,20 @@ class TrackMetadata final {
     //   - stored in file tags
     MIXXX_DECL_PROPERTY(AlbumInfo, albumInfo, AlbumInfo)
     MIXXX_DECL_PROPERTY(TrackInfo, trackInfo, TrackInfo)
+    MIXXX_DECL_PROPERTY(QStringList, genres, Genres)
 
   public:
     TrackMetadata() = default;
     TrackMetadata(TrackMetadata&&) = default;
     TrackMetadata(const TrackMetadata&) = default;
+    // Multi-genre support
+    void addGenre(const QString& genre);
+    void removeGenre(const QString& genre);
+    void clearGenres();
+
+    // Legacy single genre support (for backward compatibility)
+    QString getGenre() const;
+    void setGenre(const QString& genre);
     /*non-virtual*/ ~TrackMetadata() = default;
 
     TrackMetadata& operator=(TrackMetadata&&) = default;
