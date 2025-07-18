@@ -943,13 +943,13 @@ void DlgTrackInfo::resizeEvent(QResizeEvent* pEvent) {
 
 void DlgTrackInfo::setupGenreWidget() {
     // Create the genre widget and replace the txtGenre QLineEdit with it.
-    // This allows us to use a custom widget for genre input while keeping the
+    // This allows to use a custom widget for genre input while keeping the
     // existing layout intact.
     m_pGenreWidget = make_parented<WGenreTagInput>(this);
 
     // Check if txtGenre exists and is part of a layout
-    // If it is, we will replace it with m_pGenreWidget.
-    // If not, we will just add m_pGenreWidget to the parent layout.
+    // If it is, will replace it with m_pGenreWidget.
+    // If not, will just add m_pGenreWidget to the parent layout.
     if (txtGenre && txtGenre->parentWidget()) {
         QWidget* parentWidget = txtGenre->parentWidget();
         QGridLayout* gridLayout = qobject_cast<QGridLayout*>(parentWidget->layout());
