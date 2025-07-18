@@ -677,7 +677,6 @@ void DlgTrackInfo::saveTrack() {
     // Else triggering apply twice in quick succession might clear the metadata.
     m_pLoadedTrack->replaceRecord(m_trackRecord, m_pBeatsClone);
 
-    // After replaceRecord
     if (m_pTrackCollection) {
         QStringList dbGenresAfter =
                 m_pTrackCollection->getGenreDao().getGenresForTrack(
