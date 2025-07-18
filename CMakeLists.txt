@@ -1226,6 +1226,7 @@ add_library(
   src/library/dao/libraryhashdao.cpp
   src/library/dao/playlistdao.cpp
   src/library/dao/settingsdao.cpp
+  src/library/dao/genredao.cpp
   src/library/dao/trackdao.cpp
   src/library/dao/trackschema.cpp
   src/library/tabledelegates/defaultdelegate.cpp
@@ -1586,6 +1587,7 @@ add_library(
   src/widget/weffectpushbutton.cpp
   src/widget/weffectselector.cpp
   src/widget/wfindonwebmenu.cpp
+  src/widget/wgenretaginput.cpp
   src/widget/whotcuebutton.cpp
   src/widget/wimagestore.cpp
   src/widget/wkey.cpp
