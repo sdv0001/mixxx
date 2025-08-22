@@ -100,7 +100,8 @@ LibraryScanner::LibraryScanner(
         const UserSettingsPointer& pConfig)
         : m_pDbConnectionPool(std::move(pDbConnectionPool)),
           m_analysisDao(pConfig),
-          m_trackDao(m_cueDao, m_playlistDao, m_analysisDao, m_libraryHashDao, pConfig),
+          m_genreDao(QSqlDatabase()),
+          m_trackDao(m_cueDao, m_playlistDao, m_analysisDao, m_libraryHashDao, m_genreDao, pConfig),
           m_stateSema(1), // only one transaction is possible at a time
           m_state(IDLE),
           m_manualScan(true) {
@@ -172,6 +173,7 @@ void LibraryScanner::run() {
         m_trackDao.initialize(dbConnection);
         m_playlistDao.initialize(dbConnection);
         m_analysisDao.initialize(dbConnection);
+        m_genreDao.initialize(dbConnection);
         m_directoryDao.initialize(dbConnection);
 
         // Start the event loop.

@@ -302,6 +302,39 @@
            </widget>
           </item>
 
+          <item row="6" column="0">
+    <widget class="QLabel" name="labelGenres">
+        <property name="text">
+            <string>Genres:</string>
+        </property>
+        <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+    </widget>
+</item>
+<item row="6" column="1">
+    <widget class="QLineEdit" name="txtGenres">
+        <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>0</width>
+                <height>0</height>
+            </size>
+        </property>
+        <property name="toolTip">
+            <string>Multiple genres separated by /</string>
+        </property>
+        <property name="placeholderText">
+            <string>Electronic / House / Deep House</string>
+        </property>
+    </widget>
+</item>
+
           <item row="5" column="2">
            <widget class="QLabel" name="lblKey">
             <property name="text">

@@ -14,6 +14,7 @@
 #include "library/coverartutils.h"
 #include "library/dao/analysisdao.h"
 #include "library/dao/cuedao.h"
+#include "library/dao/genredao.h"
 #include "library/dao/libraryhashdao.h"
 #include "library/dao/playlistdao.h"
 #include "library/dao/trackschema.h"
@@ -89,14 +90,16 @@ QSet<QString> collectTrackLocations(FwdSqlQuery& query) {
 } // anonymous namespace
 
 TrackDAO::TrackDAO(CueDAO& cueDao,
-                   PlaylistDAO& playlistDao,
-                   AnalysisDao& analysisDao,
-                   LibraryHashDAO& libraryHashDao,
-                   UserSettingsPointer pConfig)
+        PlaylistDAO& playlistDao,
+        AnalysisDao& analysisDao,
+        LibraryHashDAO& libraryHashDao,
+        GenreDao& genreDao,
+        UserSettingsPointer pConfig)
         : m_cueDao(cueDao),
           m_playlistDao(playlistDao),
           m_analysisDao(analysisDao),
           m_libraryHashDao(libraryHashDao),
+          m_genreDao(genreDao),
           m_pConfig(pConfig),
           m_trackLocationIdColumn(UndefinedRecordIndex),
           m_queryLibraryIdColumn(UndefinedRecordIndex),
@@ -368,6 +371,12 @@ bool TrackDAO::saveTrack(Track* pTrack) const {
         return false;
     }
 
+    // Save genres using GenreDao
+    if (!m_genreDao.setTrackGenres(trackId, pTrack->getMetadata().getGenres())) {
+        kLogger.warning() << "Failed to save genres for track" << trackId;
+        return false;
+    }
+
     // BaseTrackCache must be informed separately, because the
     // track has already been disconnected and TrackDAO does
     // not receive any signals that are usually forwarded to
@@ -596,7 +605,7 @@ void bindTrackLibraryValues(
     pTrackLibraryQuery->bindValue(":album", albumInfo.getTitle());
     pTrackLibraryQuery->bindValue(":album_artist", albumInfo.getArtist());
     pTrackLibraryQuery->bindValue(":year", trackInfo.getYear());
-    pTrackLibraryQuery->bindValue(":genre", trackInfo.getGenre());
+    // pTrackLibraryQuery->bindValue(":genre", trackInfo.getGenre());
     pTrackLibraryQuery->bindValue(":composer", trackInfo.getComposer());
     pTrackLibraryQuery->bindValue(":grouping", trackInfo.getGrouping());
     pTrackLibraryQuery->bindValue(":tracknumber", trackInfo.getTrackNumber());
@@ -1175,7 +1184,7 @@ void setTrackYear(const QSqlRecord& record, const int column, Track* pTrack) {
 }
 
 void setTrackGenre(const QSqlRecord& record, const int column, Track* pTrack) {
-    TrackDAO::setTrackGenreInternal(pTrack, record.value(column).toString());
+    pTrack->setGenre(record.value(column).toString());
 }
 
 void setTrackComposer(const QSqlRecord& record, const int column, Track* pTrack) {
@@ -1568,6 +1577,9 @@ TrackPointer TrackDAO::getTrackById(TrackId trackId) const {
 
     // Populate track cues from the cues table.
     pTrack->setCuePoints(m_cueDao.getCuesForTrack(trackId));
+    pTrack->refMetadata().setGenres(
+            QStringList(m_genreDao.getTrackGenres(trackId).begin(),
+                    m_genreDao.getTrackGenres(trackId).end()));
     pTrack->markClean();
 
     // Synchronize the track's metadata with the corresponding source
@@ -2514,12 +2526,6 @@ bool TrackDAO::updatePlayCounterFromPlayedHistory(
     // nor receive or emit any signals.
     emit mixxx::thisAsNonConst(this)->tracksChanged(trackIds);
     return true;
-}
-
-//static
-void TrackDAO::setTrackGenreInternal(Track* pTrack, const QString& genre) {
-    DEBUG_ASSERT(pTrack);
-    pTrack->setGenreFromTrackDAO(genre);
 }
 
 //static

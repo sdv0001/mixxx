@@ -213,6 +213,13 @@ void DlgTrackInfo::init() {
                 m_trackRecord.refMetadata().refTrackInfo().setGenre(
                         txtGenre->text());
             });
+    connect(txtGenres,
+            &QLineEdit::editingFinished,
+            this,
+            [this]() {
+                txtGenres->setText(txtGenres->text().trimmed());
+                slotGenresChanged();
+            });
     connect(txtComposer,
             &QLineEdit::editingFinished,
             this,
@@ -409,6 +416,8 @@ void DlgTrackInfo::updateTrackMetadataFields() {
             m_trackRecord.getMetadata().getAlbumInfo().getArtist());
     txtGenre->setText(
             m_trackRecord.getMetadata().getTrackInfo().getGenre());
+    QStringList genres = m_trackRecord.getMetadata().getGenres();
+    txtGenres->setText(genres.join(" / "));
     txtComposer->setText(
             m_trackRecord.getMetadata().getTrackInfo().getComposer());
     txtGrouping->setText(
@@ -530,6 +539,27 @@ void DlgTrackInfo::focusField(const QString& property) {
         }
         it.value()->setFocus();
     }
+}
+
+void DlgTrackInfo::slotGenresChanged() {
+    QString genresText = txtGenres->text().trimmed();
+    if (genresText.isEmpty()) {
+        m_trackRecord.refMetadata().setGenres(QStringList());
+        return;
+    }
+
+    // Parse genres separated by "/"
+    QStringList genresList = genresText.split('/', Qt::SkipEmptyParts);
+    QStringList cleanGenres;
+
+    for (const QString& genre : genresList) {
+        QString trimmedGenre = genre.trimmed();
+        if (!trimmedGenre.isEmpty()) {
+            cleanGenres.append(trimmedGenre);
+        }
+    }
+
+    m_trackRecord.refMetadata().setGenres(cleanGenres);
 }
 
 void DlgTrackInfo::slotCoverFound(

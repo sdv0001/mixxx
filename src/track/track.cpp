@@ -1976,6 +1976,86 @@ bool Track::updateGenre(
     return true;
 }
 
+void Track::setGenre(const QString& genre) {
+    auto locked = lockMutex(&m_qMutex);
+    QStringList genres;
+    if (!genre.trimmed().isEmpty()) {
+        genres << genre.trimmed();
+    }
+    if (compareAndSet(
+                m_record.refMetadata().ptrGenres(),
+                genres)) {
+        markDirtyAndUnlock(&locked);
+        emit genreChanged(getGenre());
+    }
+}
+
+QStringList Track::getGenres() const {
+    const auto locked = lockMutex(&m_qMutex);
+    return m_record.getMetadata().getGenres();
+}
+
+void Track::setGenres(const QStringList& genres) {
+    auto locked = lockMutex(&m_qMutex);
+    QStringList cleanGenres;
+    for (const QString& genre : genres) {
+        QString trimmed = genre.trimmed();
+        if (!trimmed.isEmpty() && !cleanGenres.contains(trimmed)) {
+            cleanGenres.append(trimmed);
+        }
+    }
+    if (compareAndSet(
+                m_record.refMetadata().ptrGenres(),
+                cleanGenres)) {
+        markDirtyAndUnlock(&locked);
+        emit genreChanged(getGenre());
+    }
+}
+
+void Track::addGenre(const QString& genre) {
+    auto locked = lockMutex(&m_qMutex);
+    QString trimmed = genre.trimmed();
+    if (trimmed.isEmpty()) {
+        return;
+    }
+
+    QStringList currentGenres = m_record.getMetadata().getGenres();
+    if (!currentGenres.contains(trimmed)) {
+        currentGenres.append(trimmed);
+        if (compareAndSet(
+                    m_record.refMetadata().ptrGenres(),
+                    currentGenres)) {
+            markDirtyAndUnlock(&locked);
+            emit genreChanged(getGenre());
+        }
+    }
+}
+
+void Track::removeGenre(const QString& genre) {
+    auto locked = lockMutex(&m_qMutex);
+    QString trimmed = genre.trimmed();
+    QStringList currentGenres = m_record.getMetadata().getGenres();
+    if (currentGenres.removeOne(trimmed)) {
+        if (compareAndSet(
+                    m_record.refMetadata().ptrGenres(),
+                    currentGenres)) {
+            markDirtyAndUnlock(&locked);
+            emit genreChanged(getGenre());
+        }
+    }
+}
+
+void Track::clearGenres() {
+    auto locked = lockMutex(&m_qMutex);
+    QStringList emptyGenres;
+    if (compareAndSet(
+                m_record.refMetadata().ptrGenres(),
+                emptyGenres)) {
+        markDirtyAndUnlock(&locked);
+        emit genreChanged(getGenre());
+    }
+}
+
 #if defined(__EXTRA_METADATA__)
 QString Track::getMood() const {
     const auto locked = lockMutex(&m_qMutex);

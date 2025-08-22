@@ -152,6 +152,7 @@ QString TrackMetadata::reformatYear(const QString& year) {
 void TrackMetadata::normalizeBeforeExport() {
     m_albumInfo.normalizeBeforeExport();
     m_trackInfo.normalizeBeforeExport();
+    m_genres.removeDuplicates();
 }
 
 bool TrackMetadata::anyFileTagsModified(
@@ -162,13 +163,15 @@ bool TrackMetadata::anyFileTagsModified(
     // been updated while decoding audio data. They are read-only and
     // must not be considered when exporting metadata!
     return getAlbumInfo() != importedFromFile.getAlbumInfo() ||
-            !getTrackInfo().compareEq(importedFromFile.getTrackInfo(), cmpBpm);
+            !getTrackInfo().compareEq(importedFromFile.getTrackInfo(), cmpBpm) ||
+            getGenres() != importedFromFile.getGenres();
 }
 
 bool operator==(const TrackMetadata& lhs, const TrackMetadata& rhs) {
     return lhs.getStreamInfo() == rhs.getStreamInfo() &&
             lhs.getAlbumInfo() == rhs.getAlbumInfo() &&
-            lhs.getTrackInfo() == rhs.getTrackInfo();
+            lhs.getTrackInfo() == rhs.getTrackInfo() &&
+            lhs.getGenres() == rhs.getGenres();
 }
 
 QDebug operator<<(QDebug dbg, const TrackMetadata& arg) {
@@ -176,8 +179,38 @@ QDebug operator<<(QDebug dbg, const TrackMetadata& arg) {
     arg.dbgStreamInfo(dbg);
     arg.dbgTrackInfo(dbg);
     arg.dbgAlbumInfo(dbg);
+    arg.dbgGenres(dbg);
     dbg << '}';
     return dbg;
+}
+
+void TrackMetadata::addGenre(const QString& genre) {
+    QString trimmedGenre = genre.trimmed();
+    if (!trimmedGenre.isEmpty() && !m_genres.contains(trimmedGenre)) {
+        m_genres.append(trimmedGenre);
+    }
+}
+
+void TrackMetadata::removeGenre(const QString& genre) {
+    m_genres.removeAll(genre.trimmed());
+}
+
+void TrackMetadata::clearGenres() {
+    m_genres.clear();
+}
+
+QString TrackMetadata::getGenre() const {
+    if (m_genres.isEmpty()) {
+        return QString();
+    }
+    return m_genres.first();
+}
+
+void TrackMetadata::setGenre(const QString& genre) {
+    m_genres.clear();
+    if (!genre.trimmed().isEmpty()) {
+        m_genres.append(genre.trimmed());
+    }
 }
 
 } // namespace mixxx
